@@ -44,6 +44,21 @@ app.post('/api/blogs', (request, response) => {
   })
 })
 
+app.delete('/api/blogs/:id', async (request, response, next) => {
+  const id = request.params.id
+  try {
+    const result = await Blog.findByIdAndDelete(id)
+    if (!result) {
+      return response.status(404).json( { error: 'Entry no found' } )
+    }
+    response.status(204).end()
+
+  } catch (error) {
+    next(error)
+  }
+
+})
+
 const PORT = 3003
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
