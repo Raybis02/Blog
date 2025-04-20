@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const express = require('express')
 const mongoose = require('mongoose')
+const { info, error } = require('./utils/logger')
 
 const app = express()
 
@@ -16,26 +17,19 @@ const Blog = mongoose.model('Blog', blogSchema)
 
 const mongoUrl = process.env.MONGODB_URI
 
-console.log('establishing connection to', mongoUrl)
+info('establishing connection to', mongoUrl)
 
 ;(async () => {
-  console.log('smd')
   try {
     // eslint-disable-next-line no-unused-vars
     const result = await mongoose.connect(mongoUrl)
-    console.log('connected to MongoDB')
-  } catch (error) {
-    console.log('error connecting to MongoDB', error.message)
+    info('connected to MongoDB')
+  } catch (err) {
+    error('error connecting to MongoDB', err.message)
   }
 })()
 
 app.use(express.json())
-
-app.get('/api/blogs', (request, response) => {
-  Blog.find({}).then((blogs) => {
-    response.json(blogs)
-  })
-})
 
 app.get('/api/blogs', async (request, response, next) => {
   try {
@@ -114,5 +108,5 @@ app.put('/api/blogs/:id', async (request, response, next) => {
 
 const PORT = 3003
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+  info(`Server running on port ${PORT}`)
 })
