@@ -1,7 +1,8 @@
 const { MONGODB_URI, PORT } = require('./utils/config')
 const express = require('express')
 const mongoose = require('mongoose')
-const { info, error } = require('./utils/logger')
+const { info, err } = require('./utils/logger')
+const middleware = require('./utils/middleware')
 
 const app = express()
 
@@ -21,12 +22,15 @@ info('establishing connection to', MONGODB_URI)
     // eslint-disable-next-line no-unused-vars
     const result = await mongoose.connect(MONGODB_URI)
     info('connected to MongoDB')
-  } catch (err) {
-    error('error connecting to MongoDB', err.message)
+  } catch (error) {
+    err('error connecting to MongoDB', error.message)
   }
 })()
 
 app.use(express.json())
+app.use(middleware.requestLogger)
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 app.get('/api/blogs', async (request, response, next) => {
   try {
