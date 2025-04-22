@@ -20,23 +20,14 @@ const favoriteBlog = (blogs) => {
 }
 
 const mostBlogs = (blogs) => {
-  let authors = []
-  lodash.uniqBy(blogs, 'author').forEach(element  => {
-    authors.push(element.author)
-  })
+  const groupedByAuthor = lodash.groupBy(blogs, 'author')
 
-  let ordered = []
-  authors.forEach(element => {
-    ordered.push(blogs.filter(elem => elem.author === element))
-  })
+  const authorBlogCounts = Object.keys(groupedByAuthor).map(author => ({
+    author: author,
+    blogs: groupedByAuthor[author].length
+  }))
 
-  ordered.sort((a, b) => a.length - b.length)
-
-  const most = {
-    author: ordered[ordered.length - 1][0].author,
-    blogs: ordered.length
-  }
-  return most
+  return lodash.maxBy(authorBlogCounts, 'blogs')
 }
 
 module.exports = {
