@@ -1,3 +1,5 @@
+const lodash = require('lodash')
+
 // eslint-disable-next-line no-unused-vars
 const dummy = (blogs) => {
   return 1
@@ -17,8 +19,29 @@ const favoriteBlog = (blogs) => {
   return favorite
 }
 
+const mostBlogs = (blogs) => {
+  let authors = []
+  lodash.uniqBy(blogs, 'author').forEach(element  => {
+    authors.push(element.author)
+  })
+
+  let ordered = []
+  authors.forEach(element => {
+    ordered.push(blogs.filter(elem => elem.author === element))
+  })
+
+  ordered.sort((a, b) => a.length - b.length)
+
+  const most = {
+    author: ordered[ordered.length - 1][0].author,
+    blogs: ordered.length
+  }
+  return most
+}
+
 module.exports = {
   dummy,
   totalLikes,
-  favoriteBlog
+  favoriteBlog,
+  mostBlogs
 }
