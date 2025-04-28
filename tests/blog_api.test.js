@@ -78,7 +78,7 @@ test('unique identifier is id', async () => {
   response.body.forEach(elem => {
     assert.strictEqual(Object.keys(elem).includes('id'), true)
     assert.strictEqual(Object.keys(elem).includes('_id'), false)
-})
+  })
   // assert.strictEqual(Object.keys(response.body[0]).includes('id'), true)
 })
 
