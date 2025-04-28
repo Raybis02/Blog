@@ -69,9 +69,17 @@ test('correct number of blogs are returned as json', async () => {
     .expect(200)
     .expect('Content-Type', /application\/json/)
 
-  console.log(response.body)
-  console.log(response.body.length)
   assert.strictEqual(response.body.length, initialBlogs.length)
+})
+
+test('unique identifier is id', async () => {
+  const response = await api.get('/api/blogs')
+
+  response.body.forEach(elem => {
+    assert.strictEqual(Object.keys(elem).includes('id'), true)
+    assert.strictEqual(Object.keys(elem).includes('_id'), false)
+})
+  // assert.strictEqual(Object.keys(response.body[0]).includes('id'), true)
 })
 
 after(async () => {
