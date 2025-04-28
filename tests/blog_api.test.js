@@ -82,6 +82,28 @@ test('unique identifier is id', async () => {
   // assert.strictEqual(Object.keys(response.body[0]).includes('id'), true)
 })
 
+test('post is succesful', async () => {
+  const newBlog = {
+    title: 'Tiger Philanthropist',
+    author: 'Steven Universe',
+    url: 'https://www.imdb.com/title/tt5969422/?ref_=ttep_ep_18',
+    likes: 18,
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+
+  assert.strictEqual(response.body.length, initialBlogs.length + 1)
+
+  const afterSending = response.body.map(elem => elem.title)
+  assert(afterSending.includes('Tiger Philanthropist'))
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
