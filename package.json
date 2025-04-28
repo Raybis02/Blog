@@ -4,15 +4,17 @@
   "version": "0.0.0",
   "type": "commonjs",
   "scripts": {
-    "dev": "nodemon index.js",
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=developement nodemon index.js",
     "build": "vite build",
     "lint": "eslint ./",
     "build:ui": "@powershell Remove-Item -Recurse -Force dist && cd ../frontend && npm run build && @powershell Copy-Item dist -Recurse ../backend",
     "preview": "vite preview",
-    "test": "node --test"
+    "test": "cross-env NODE_ENV=test node --test"
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "mongoose": "^8.13.2",
@@ -32,6 +34,7 @@
     "globals": "^16.0.0",
     "lodash": "^4.17.21",
     "nodemon": "^3.1.9",
+    "supertest": "^7.1.0",
     "vite": "^6.3.1"
   }
 }
