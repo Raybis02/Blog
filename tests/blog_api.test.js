@@ -104,6 +104,25 @@ test('post is succesful', async () => {
   assert(afterSending.includes('Tiger Philanthropist'))
 })
 
+test('default value of likes is 0',  async () => {
+  const newBlog = {
+    title: 'Tiger Philanthropist',
+    author: 'Steven Universe',
+    url: 'https://www.imdb.com/title/tt5969422/?ref_=ttep_ep_18',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+  const afterSending = response.body.find(element => element.title === newBlog.title)
+  console.log(afterSending)
+  assert.strictEqual(afterSending.likes, 0)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
