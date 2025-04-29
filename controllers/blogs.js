@@ -55,7 +55,7 @@ blogsRouter.put('/:id', async (request, response, next) => {
   const id = request.params.id
   const body = request.body
 
-  if ((!body.title) || (!body.author) || (!body.url) || (body.likes === undefined)) {
+  if (!body.title || body.title.trim() === '' || !body.author || body.author.trim() === '' || !body.url || body.url.trim() === '' || body.likes === undefined) {
     return response.status(400).json({ error: 'all fields need value' })
   }
 
