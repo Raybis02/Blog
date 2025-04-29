@@ -79,7 +79,6 @@ test('unique identifier is id', async () => {
     assert.strictEqual(Object.keys(elem).includes('id'), true)
     assert.strictEqual(Object.keys(elem).includes('_id'), false)
   })
-  // assert.strictEqual(Object.keys(response.body[0]).includes('id'), true)
 })
 
 test('post is succesful', async () => {
@@ -118,9 +117,40 @@ test('default value of likes is 0',  async () => {
     .expect('Content-Type', /application\/json/)
 
   const response = await api.get('/api/blogs')
+
   const afterSending = response.body.find(element => element.title === newBlog.title)
-  console.log(afterSending)
   assert.strictEqual(afterSending.likes, 0)
+})
+
+test('Bad Request when title or url are missing', async () => {
+  const noTitle = {
+    author: 'Steven Universe',
+    url: 'https://www.imdb.com/title/tt5969422/?ref_=ttep_ep_18',
+  }
+  await api
+    .post('/api/blogs')
+    .send(noTitle)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+
+  const noUrl = {
+    title: 'Tiger Philanthropist',
+    author: 'Steven Universe',
+  }
+  await api
+    .post('/api/blogs')
+    .send(noUrl)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+
+  const notBoth = {
+    author: 'Steven Universe',
+  }
+  await api
+    .post('/api/blogs')
+    .send(notBoth)
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
 })
 
 after(async () => {
