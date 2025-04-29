@@ -103,7 +103,7 @@ test('post is succesful', async () => {
   assert(afterSending.includes('Tiger Philanthropist'))
 })
 
-test('default value of likes is 0',  async () => {
+test('default value of likes is 0', async () => {
   const newBlog = {
     title: 'Tiger Philanthropist',
     author: 'Steven Universe',
@@ -133,6 +133,9 @@ test('Bad Request when title or url are missing', async () => {
     .expect(400)
     .expect('Content-Type', /application\/json/)
 
+  const afterSending = await api.get('/api/blogs')
+  assert.strictEqual(afterSending.body.length, initialBlogs.length)
+
   const noUrl = {
     title: 'Tiger Philanthropist',
     author: 'Steven Universe',
@@ -143,6 +146,9 @@ test('Bad Request when title or url are missing', async () => {
     .expect(400)
     .expect('Content-Type', /application\/json/)
 
+  const afterSending2 = await api.get('/api/blogs')
+  assert.strictEqual(afterSending2.body.length, initialBlogs.length)
+
   const notBoth = {
     author: 'Steven Universe',
   }
@@ -151,6 +157,9 @@ test('Bad Request when title or url are missing', async () => {
     .send(notBoth)
     .expect(400)
     .expect('Content-Type', /application\/json/)
+
+  const afterSending3 = await api.get('/api/blogs')
+  assert.strictEqual(afterSending3.body.length, initialBlogs.length)
 })
 
 after(async () => {
