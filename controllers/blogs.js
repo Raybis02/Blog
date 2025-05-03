@@ -29,18 +29,10 @@ blogsRouter.get('/:id', async (request, response, next) => {
   }
 })
 
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
-  }
-  return null
-}
-
 blogsRouter.post('/', async (request, response, next) => {
   const body = request.body
-  const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
-  if(!decodedToken.id) {
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
     return response.status(401).json({ error: 'token invalid' })
   }
 
@@ -67,11 +59,24 @@ blogsRouter.post('/', async (request, response, next) => {
 
 blogsRouter.delete('/:id', async (request, response, next) => {
   const id = request.params.id
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+
   try {
-    const result = await Blog.findByIdAndDelete(id)
-    if (!result) {
+    const user = await User.findById(decodedToken.id)
+    const blog = await Blog.findById(id)
+
+    if (!blog) {
       return response.status(404).json({ error: 'Entry no found' })
+    } else if (blog.user.toString() !== user.id.toString()) {
+      return response.status(400).json({ error: 'only creators can delete their blogs' })
     }
+    user.blogs = user.blogs.filter(blogId => blogId.toString() !== id)
+    await user.save()
+    await Blog.findByIdAndDelete(id)
     response.status(204).end()
 
   } catch (error) {
