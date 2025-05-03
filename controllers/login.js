@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs')
 const loginRouter = require('express').Router()
 const User = require('../models/user')
 
-loginRouter('/', async (request, response, next) => {
+loginRouter.post('/', async (request, response, next) => {
   const { username, password } = request.body
   try {
     const user = await User.findOne({ username })
