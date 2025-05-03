@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs')
 
 userRouter.get('/', async (request, response, next) => {
   try {
-    const entries = await User.find({})
+    const entries = await User.find({}).populate('blogs', 'url title author')
     if (entries) {
       response.json(entries)
     } else
