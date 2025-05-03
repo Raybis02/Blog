@@ -53,8 +53,6 @@ describe('Test for GET request', () => {
   })
 })
 
-
-
 describe('Tests for POST request', () => {
   test('adding user with valid input succeeds with response 201', async () => {
     const newUser = {
@@ -186,6 +184,55 @@ describe('Tests for DELETE request', () => {
     const afterDeletion = await api.get('/api/users')
 
     assert.strictEqual(afterDeletion.body.length, initialUsers.length)
+  })
+})
+
+describe('Tests for adding blogs', () => {
+  test('adding valid Blog with User Id results in 201', async () => {
+    const response = await api.get('/api/users')
+    const user = response.body[0]
+    const destination = user.id
+
+    const newBlog = {
+      title: 'test',
+      author: 'author',
+      url: 'url',
+      userId: destination
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const afterSending = await api.get('/api/users')
+    const userAfterSending = afterSending.body[0]
+
+    const blogList = userAfterSending.blogs.map(r => r.title)
+
+    assert.strictEqual(userAfterSending.blogs.length, user.blogs.length + 1)
+    assert.strictEqual(blogList.includes('test'), true)
+  })
+
+  test('adding  Blog without User Id results in 400', async () => {
+    const blogs = await api.get('/api/blogs')
+
+    const newBlog = {
+      title: 'test',
+      author: 'author',
+      url: 'url',
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
+
+    const afterSending = await api.get('/api/blogs')
+
+    assert.strictEqual(afterSending.length, blogs.length)
   })
 })
 
