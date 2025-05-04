@@ -293,7 +293,6 @@ describe('Tests for DELETE request', () => {
     const response = await api.get('/api/blogs')
 
     const blogToDelete = response.body.filter(elem => elem.title === 'Tiger Philanthropist')[0]
-    console.log(blogToDelete)
 
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
@@ -348,6 +347,63 @@ describe('Tests for DELETE request', () => {
 
     const ids = afterDeletion.body.map(r => r.id)
     assert.strictEqual(ids.includes(blogToDelete.id), true)
+    assert.strictEqual(afterDeletion.body.length, response.body.length)
+  })
+
+  test('Deleting blog from another user fails with 400', async () => {
+    const newBlog = {
+      title: 'Tiger Philanthropist',
+      author: 'Steven Universe',
+      url: 'https://www.imdb.com/title/tt5969422/?ref_=ttep_ep_18',
+      likes: 18,
+    }
+
+    const firstUser = {
+      username: 'Socrates',
+      password: 'socrates',
+    }
+
+    const fetchToken = await api
+      .post('/api/login')
+      .send(firstUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const token = fetchToken.body.token
+
+    await api
+      .post('/api/blogs')
+      .auth(token, { type: 'bearer' })
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const response = await api.get('/api/blogs')
+
+    const addedByFirstUser = response.body.filter(elem => elem.title === 'Tiger Philanthropist')[0]
+
+    const secondUser = {
+      username: 'Levi',
+      password: 'azi',
+    }
+
+    const fetchSecondToken = await api
+      .post('/api/login')
+      .send(secondUser)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const secondToken = fetchSecondToken.body.token
+
+    await api
+      .delete(`/api/blogs/${addedByFirstUser.id}`)
+      .auth(secondToken, { type: 'bearer' })
+      .expect(400)
+
+    const afterDeletion = await api.get('/api/blogs')
+
+    const ids = afterDeletion.body.map(r => r.id)
+    assert.strictEqual(ids.includes(addedByFirstUser.id), true)
     assert.strictEqual(afterDeletion.body.length, response.body.length)
   })
 })
