@@ -4,26 +4,36 @@ const supertest = require('supertest')
 const app = require('../app')
 const assert = require('node:assert')
 const User = require('../models/user')
+const bcrypt = require('bcryptjs')
 
 const api = supertest(app)
 
-const initialUsers = [
-  {
-    'username': 'Socrates',
-    'name': 'Marshall Cuso',
-    'passwordHash': 'Socrates1'
-  },
-  {
-    'username': 'Tiger Philanthropist',
-    'name': 'Steven Universe',
-    'passwordHash': '6814be1781f9192b4481fe50'
-  },
-  {
-    'username': 'Levi',
-    'name': 'Azi',
-    'passwordHash': '6814be3181f9192b4481fe52'
-  },
-]
+const initialUsers = []
+
+
+const initializeUsers = async () => {
+  const saltRounds = 10
+  const users = [
+    {
+      username: 'Socrates',
+      name: 'Marshall Cuso',
+      passwordHash: await bcrypt.hash('socrates', saltRounds)
+    },
+    {
+      username: 'Tiger Philanthropist',
+      name: 'Steven Universe',
+      passwordHash: await bcrypt.hash('steven', saltRounds)
+    },
+    {
+      username: 'Levi',
+      name: 'Azi',
+      passwordHash: await bcrypt.hash('azi', saltRounds)
+    }
+  ]
+  initialUsers.push(...users)
+}
+
+initializeUsers()
 
 beforeEach(async () => {
   await User.deleteMany({})
@@ -188,20 +198,32 @@ describe('Tests for DELETE request', () => {
 })
 
 describe('Tests for adding blogs', () => {
-  test('adding valid Blog with User Id results in 201', async () => {
+  test('adding valid Blog with token results in 201', async () => {
     const response = await api.get('/api/users')
     const user = response.body[0]
-    const destination = user.id
+
+    const userToLogin = {
+      username: 'Socrates',
+      password: 'socrates',
+    }
+
+    const fetchToken = await api
+      .post('/api/login')
+      .send(userToLogin)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const token = fetchToken.body.token
 
     const newBlog = {
       title: 'test',
       author: 'author',
       url: 'url',
-      userId: destination
     }
 
     await api
       .post('/api/blogs')
+      .auth(token, { type: 'bearer' })
       .send(newBlog)
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -215,7 +237,7 @@ describe('Tests for adding blogs', () => {
     assert.strictEqual(blogList.includes('test'), true)
   })
 
-  test('adding  Blog without User Id results in 400', async () => {
+  test('adding  Blog without token results in 401', async () => {
     const blogs = await api.get('/api/blogs')
 
     const newBlog = {
@@ -227,7 +249,7 @@ describe('Tests for adding blogs', () => {
     await api
       .post('/api/blogs')
       .send(newBlog)
-      .expect(400)
+      .expect(401)
       .expect('Content-Type', /application\/json/)
 
     const afterSending = await api.get('/api/blogs')
@@ -235,7 +257,6 @@ describe('Tests for adding blogs', () => {
     assert.strictEqual(afterSending.length, blogs.length)
   })
 })
-
 
 after(async () => {
   await mongoose.connection.close()
