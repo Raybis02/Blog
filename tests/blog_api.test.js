@@ -408,42 +408,42 @@ describe('Tests for DELETE request', () => {
   })
 })
 
-// describe('Tests for PUT request', () => {
-//   test('put request results in code 200 for valid input', async () => {
-//     const response = await api.get('/api/blogs')
+describe('Tests for PUT request', () => {
+  test('put request results in code 200 for valid input', async () => {
+    const response = await api.get('/api/blogs')
 
-//     const blogToBeChanged = response.body[0]
-//     blogToBeChanged.likes = 100
+    const blogToBeChanged = response.body[0]
+    blogToBeChanged.likes = 100
 
-//     await api
-//       .put(`/api/blogs/${blogToBeChanged.id}`)
-//       .send(blogToBeChanged)
-//       .expect(200)
-//       .expect('Content-Type', /application\/json/)
+    await api
+      .put(`/api/blogs/${blogToBeChanged.id}`)
+      .send(blogToBeChanged)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
-//     const response2 = await api.get('/api/blogs')
-//     const afterPut = response2.body[0]
-//     assert.strictEqual(afterPut.likes, blogToBeChanged.likes)
-//   })
+    const response2 = await api.get('/api/blogs')
+    const afterPut = response2.body[0]
+    assert.strictEqual(afterPut.likes, blogToBeChanged.likes)
+  })
 
-//   test('put request results in code 400 for invalid input', async () => {
-//     const response = await api.get('/api/blogs')
+  test('put request results in code 400 for invalid input', async () => {
+    const response = await api.get('/api/blogs')
 
-//     const blogToBeChanged = response.body[0]
-//     const title = blogToBeChanged.title
-//     blogToBeChanged.title = ''
+    const blogToBeChanged = response.body[0]
+    const title = blogToBeChanged.title
+    blogToBeChanged.title = ''
 
-//     await api
-//       .put(`/api/blogs/${blogToBeChanged.id}`)
-//       .send(blogToBeChanged)
-//       .expect(400)
-//       .expect('Content-Type', /application\/json/)
+    await api
+      .put(`/api/blogs/${blogToBeChanged.id}`)
+      .send(blogToBeChanged)
+      .expect(400)
+      .expect('Content-Type', /application\/json/)
 
-//     const response2 = await api.get('/api/blogs')
-//     const afterPut = response2.body[0]
-//     assert.strictEqual(afterPut.title, title)
-//   })
-// })
+    const response2 = await api.get('/api/blogs')
+    const afterPut = response2.body[0]
+    assert.strictEqual(afterPut.title, title)
+  })
+})
 
 after(async () => {
   await mongoose.connection.close()
